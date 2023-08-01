@@ -3,6 +3,7 @@
 
 //NOTE: NPM I after npx db push to update for typescript 
 //or restart typescript server / es lint server with cmd shft p
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
