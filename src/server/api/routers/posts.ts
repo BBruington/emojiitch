@@ -3,9 +3,9 @@ import type {User} from "@clerk/nextjs/api"
 import {
   createTRPCRouter,
   publicProcedure,
-  protectedProcedure,
 } from "npm/server/api/trpc";
 import { clerkClient } from "@clerk/nextjs";
+import { TRPCError } from "@trpc/server";
 
 const filterUserForClient = (user: User) => {
   return {
@@ -16,7 +16,9 @@ const filterUserForClient = (user: User) => {
  }
 
 export const postsRouter = createTRPCRouter({
+
   getAll: publicProcedure.query(async ({ ctx }) => {
+
     const posts = await ctx.prisma.post.findMany({
       take: 100,
     });
@@ -29,14 +31,19 @@ export const postsRouter = createTRPCRouter({
 
     console.log(users)
 
-    return posts.map(post => ({
-      post,
-      author: users.find((user) => user.id === post.authorId),
-    }))
+    return posts.map(post => {
 
-  }),
+      const author = users.find((user) => user.id === post.authorId);
 
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
+      if(!author) throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Author for post not found",
+      })
+
+      return {
+        post,
+        author: users.find((user) => user.id === post.authorId)!,
+      };
+    });
   }),
 });

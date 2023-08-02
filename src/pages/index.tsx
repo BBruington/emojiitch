@@ -1,7 +1,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { api } from "npm/utils/api";
+import { RouterOutputs, api } from "npm/utils/api";
 import { SignIn,
   SignInButton,
   SignOutButton,
@@ -25,6 +25,20 @@ import { SignIn,
         <input 
         placeholder="Type some emojis!" 
         className="bg-transparent grow outline-none"/>
+      </div>
+    )
+  };
+
+  type PostWithUser = RouterOutputs["posts"]["getAll"][number];
+
+  const PostView = (props: PostWithUser) => { 
+
+    const {post, author} = props;
+
+    return (
+      <div key={post.id} className="p-8 border-b border-slate-400">
+        <img src={author.profileImageUrl} />
+        {post.content}
       </div>
     )
   }
@@ -56,8 +70,8 @@ export default function Home() {
             {user.isSignedIn && <CreatePostWizard />}
           </div>
           <div>
-            {[...data, ...data]?.map(({post, author}) => (
-              <div key={post.id} className="p-8 border-b border-slate-400">{post.content}</div>
+            {[...data, ...data]?.map((fullPost) => (
+              <PostView {...fullPost} key={fullPost.post.id} />
               ))}
           </div>
         </div>
