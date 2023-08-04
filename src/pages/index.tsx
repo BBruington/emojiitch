@@ -7,6 +7,10 @@ import { SignIn,
   SignOutButton,
   useUser
   } from "@clerk/nextjs";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
   const CreatePostWizard = () => {
     const {user} = useUser();
@@ -36,9 +40,15 @@ import { SignIn,
     const {post, author} = props;
 
     return (
-      <div key={post.id} className="p-8 border-b border-slate-400">
-        <img src={author.profileImageUrl} />
-        {post.content}
+      <div key={post.id} className="flex p-4 border-b border-slate-400 gap-3">
+        <img src={author.profileImageUrl} className="h-14 w-14 rounded-full" />
+        <div className="flex flex-col">
+          <div className="flex text-slate-300">
+            <span>{`@${author.username}`} </span> 
+            &nbsp; - &nbsp; 
+            <span className="font-thin">{`${dayjs(post.createdAt).fromNow()}`}</span>
+          </div>
+          <span>{post.content}</span></div>
       </div>
     )
   }
