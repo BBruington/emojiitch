@@ -1,4 +1,4 @@
-import { LoadingSpinner } from "npm/components/loading";
+import { LoadingPage } from "npm/components/loading";
 import Head from "next/head";
 import Link from "next/link";
 import type { RouterOutputs } from "npm/utils/api";
@@ -69,7 +69,7 @@ export default function Home() {
 
   const {data, isLoading} = api.posts.getAll.useQuery()
 
-  if(!data || isLoading) return <LoadingSpinner />
+  if(!data || isLoading) return <LoadingPage />
 
   if(!data) return <div>Something went wrong</div>
 
