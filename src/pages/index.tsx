@@ -1,26 +1,28 @@
 import { LoadingPage } from "npm/components/loading";
 import Head from "next/head";
-import Link from "next/link";
 import type { RouterOutputs } from "npm/utils/api";
 import { api } from "npm/utils/api";
-import { SignIn,
+import { 
   SignInButton,
-  SignOutButton,
   useUser
   } from "@clerk/nextjs";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 
+//helps with using timestamps
+
 dayjs.extend(relativeTime);
 
   const CreatePostWizard = () => {
+
+    //gets logged in user info and gets their profile image and ability to post
+    //as their header
+
     const {user} = useUser();
-
+    
     if(!user) return null;
-
-    console.log(user)
-
+    
     return (
       <div className="flex w-full gap-3">
         <Image 
@@ -36,10 +38,12 @@ dayjs.extend(relativeTime);
       </div>
     )
   };
-
+  
   type PostWithUser = RouterOutputs["posts"]["getAll"][number];
-
+  
   const PostView = (props: PostWithUser) => { 
+
+    //assigns the author username / profile image to posts they make 
 
     const {post, author} = props;
 
@@ -63,15 +67,43 @@ dayjs.extend(relativeTime);
     )
   }
 
-export default function Home() {
+  const Feed = () => {
+
+    //generates all of the posts onto the page as feed
+
+    //1st time fetching feed data and react query allows me to quickly fetch it again later on
+    //if needed using old cache
+    const {data, isLoading: postsLoading} = api.posts.getAll.useQuery();
+
+    if (postsLoading) return <LoadingPage />;
+
+    if(!data) return <div>Something went wrong</div>
+
+    return (
+      <div>
+        {[...data, ...data]?.map((fullPost) => (
+          <PostView {...fullPost} key={fullPost.post.id} />
+          ))}
+      </div>
+    )
+  }
   
-  const user = useUser();
+export default function Home() {
 
-  const {data, isLoading} = api.posts.getAll.useQuery()
+  
+  const {isLoaded: userLoaded, isSignedIn} = useUser();
 
-  if(!data || isLoading) return <LoadingPage />
+  //since i've already fetched this data earlier, react query can use the cached data to quickly
+  //fetch it again w/o the const
+  api.posts.getAll.useQuery()
 
-  if(!data) return <div>Something went wrong</div>
+  // user loads really fast so while both posts AND user are loading make the page empty instead 
+  //of using a loading page
+  if(!userLoaded) return <div />
+
+  // if(isLoading) return <LoadingPage />
+
+  // if(!data) return <div>Something went wrong</div>
 
   return (
     <>
@@ -83,17 +115,13 @@ export default function Home() {
       <main className="flex h-screen justify-center">
         <div className="h-full w-full border-x border-slate-400 md:max-w-2xl">
           <div className="border-b border-slate-400 p-4">
-            {!user.isSignedIn && 
+            {!isSignedIn && 
             <div className="flex justify-center">
               <SignInButton />
             </div>}
-            {user.isSignedIn && <CreatePostWizard />}
+            {isSignedIn && <CreatePostWizard />}
           </div>
-          <div>
-            {[...data, ...data]?.map((fullPost) => (
-              <PostView {...fullPost} key={fullPost.post.id} />
-              ))}
-          </div>
+          <Feed />
         </div>
         {/* <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" /> */}
       </main>
