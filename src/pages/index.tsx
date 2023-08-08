@@ -43,7 +43,7 @@ dayjs.extend(relativeTime);
   
   const PostView = (props: PostWithUser) => { 
 
-    //assigns the author username / profile image to posts they make 
+    //assigns the author username / profile image to posts they made 
 
     const {post, author} = props;
 
@@ -62,7 +62,7 @@ dayjs.extend(relativeTime);
             &nbsp; - &nbsp; 
             <span className="font-thin">{`${dayjs(post.createdAt).fromNow()}`}</span>
           </div>
-          <span>{post.content}</span></div>
+          <span className="text-2xl">{post.content}</span></div>
       </div>
     )
   }
@@ -87,7 +87,7 @@ dayjs.extend(relativeTime);
       </div>
     )
   }
-  
+
 export default function Home() {
 
   
@@ -95,15 +95,11 @@ export default function Home() {
 
   //since i've already fetched this data earlier, react query can use the cached data to quickly
   //fetch it again w/o the const
-  api.posts.getAll.useQuery()
+  //api.posts.getAll.useQuery()
 
   // user loads really fast so while both posts AND user are loading make the page empty instead 
   //of using a loading page
   if(!userLoaded) return <div />
-
-  // if(isLoading) return <LoadingPage />
-
-  // if(!data) return <div>Something went wrong</div>
 
   return (
     <>
@@ -123,7 +119,6 @@ export default function Home() {
           </div>
           <Feed />
         </div>
-        {/* <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" /> */}
       </main>
     </>
   );
