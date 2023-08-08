@@ -9,6 +9,7 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
+import { useState } from "react";
 
 //helps with using timestamps
 
@@ -20,21 +21,31 @@ dayjs.extend(relativeTime);
     //as their header
 
     const {user} = useUser();
+
+    const [input, setInput] = useState('')
+
+    const {mutate} = api.posts.create.useMutation();
     
     if(!user) return null;
     
     return (
       <div className="flex w-full gap-3">
         <Image 
-        src={user.profileImageUrl} 
-        alt={`profile picture`} 
-        className="h-14 w-14 rounded-full"
-        width={56}
-        height={56}
+          src={user.profileImageUrl} 
+          alt={`profile picture`} 
+          className="h-14 w-14 rounded-full"
+          width={56}
+          height={56}
         />
         <input 
-        placeholder="Type some emojis!" 
-        className="bg-transparent grow outline-none"/>
+          placeholder="Type some emojis!" 
+          className="bg-transparent grow outline-none"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <button onClick={() => mutate({ content: input })}>
+          Post
+        </button>
       </div>
     )
   };
