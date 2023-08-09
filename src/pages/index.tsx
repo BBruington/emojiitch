@@ -24,7 +24,17 @@ dayjs.extend(relativeTime);
 
     const [input, setInput] = useState('')
 
-    const {mutate} = api.posts.create.useMutation();
+    const ctx = api.useContext();
+
+    const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+      onSuccess: () => {
+        setInput("");
+        
+        //void tells typescript that even though i know this is a promise, in this particular context
+        //it's ok to not use async / await and to ignore it
+        void ctx.posts.getAll.invalidate();
+      }
+    });
     
     if(!user) return null;
     
@@ -42,6 +52,7 @@ dayjs.extend(relativeTime);
           className="bg-transparent grow outline-none"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          disabled={isPosting}
         />
         <button onClick={() => mutate({ content: input })}>
           Post
@@ -92,7 +103,7 @@ dayjs.extend(relativeTime);
 
     return (
       <div>
-        {[...data, ...data]?.map((fullPost) => (
+        {[...data]?.map((fullPost) => (
           <PostView {...fullPost} key={fullPost.post.id} />
           ))}
       </div>

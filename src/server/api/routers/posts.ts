@@ -22,6 +22,7 @@ export const postsRouter = createTRPCRouter({
 
     const posts = await ctx.prisma.post.findMany({
       take: 100,
+      orderBy: [{ createdAt: "desc" }],
     });
 
     const users = (
