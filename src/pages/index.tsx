@@ -1,4 +1,4 @@
-import { LoadingPage } from "npm/components/loading";
+import { LoadingPage, LoadingSpinner } from "npm/components/loading";
 import Head from "next/head";
 import type { RouterOutputs } from "npm/utils/api";
 import { api } from "npm/utils/api";
@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 //helps with using timestamps
 
@@ -29,10 +30,19 @@ dayjs.extend(relativeTime);
     const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
       onSuccess: () => {
         setInput("");
-        
+
         //void tells typescript that even though i know this is a promise, in this particular context
         //it's ok to not use async / await and to ignore it
         void ctx.posts.getAll.invalidate();
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors.content;
+
+        if ( errorMessage![0] && errorMessage) {
+          toast.error(errorMessage[0])
+        } else {
+          toast.error("Failed to post! Please try again later.");
+        }
       }
     });
     
@@ -52,11 +62,27 @@ dayjs.extend(relativeTime);
           className="bg-transparent grow outline-none"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if(e.key === "Enter") {
+              e.preventDefault();
+              if(input !== "") {
+                mutate({ content: input });
+              }
+            }
+          }}
           disabled={isPosting}
         />
-        <button onClick={() => mutate({ content: input })}>
-          Post
-        </button>
+        { input !== "" && !isPosting && (
+          <button disabled={isPosting} onClick={() => mutate({ content: input })}>
+            Post
+          </button>
+        )}
+
+        { isPosting && (
+        <div className="flex justify-center items-center">
+          <LoadingSpinner size={20} /> 
+        </div>
+        )}
       </div>
     )
   };

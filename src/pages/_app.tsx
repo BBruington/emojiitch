@@ -5,12 +5,16 @@ import { type AppType } from "next/app";
 import { api } from "npm/utils/api";
 import "npm/styles/globals.css";
 
+//used to implement react notifications https://react-hot-toast.com
+import { Toaster } from "react-hot-toast";
+
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { ...pageProps },
 }: AppProps) => {
   return (
     <ClerkProvider {...pageProps}>
+      <Toaster position="bottom-center"/>
       <Component {...pageProps} />
     </ClerkProvider>
   );
