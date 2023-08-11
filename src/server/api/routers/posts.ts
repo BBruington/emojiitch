@@ -14,7 +14,7 @@ const filterUserForClient = (user: User) => {
     username: user.username, 
     profileImageUrl: user.profileImageUrl, 
   }
- }
+}
 
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -39,8 +39,6 @@ export const postsRouter = createTRPCRouter({
       userId: posts.map((post) => post.authorId),
       limit:100,
     })).map(filterUserForClient)
-
-    console.log(users)
 
     return posts.map(post => {
 

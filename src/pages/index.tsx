@@ -11,6 +11,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 //helps with using timestamps
 
@@ -106,9 +107,13 @@ dayjs.extend(relativeTime);
         />
         <div className="flex flex-col">
           <div className="flex text-slate-300">
-            <span>{`@${author.username}`} </span> 
-            &nbsp; - &nbsp; 
-            <span className="font-thin">{`${dayjs(post.createdAt).fromNow()}`}</span>
+            <Link href={`/@${author.username}`}>
+              <span>{`@${author.username}`} </span> 
+            </Link>
+              &nbsp; - &nbsp; 
+            <Link href={`/post/${post.id}`}>
+              <span className="font-thin">{`${dayjs(post.createdAt).fromNow()}`}</span>
+            </Link>
           </div>
           <span className="text-2xl">{post.content}</span></div>
       </div>
