@@ -1,10 +1,12 @@
+import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { api } from "npm/utils/api";
+import { generateSSGHelper } from "npm/server/helpers/ssgHelper";
 
 
-export default function ProfilePage() {
+const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 
-  const {data, isLoading} = api.profile.getUserByUsername.useQuery({username: "bbruington"})
+  const {data, isLoading} = api.profile.getUserByUsername.useQuery({username})
 
   if (isLoading) return <div>Loading...</div>
 
@@ -23,3 +25,30 @@ export default function ProfilePage() {
     </>
   );
 }
+
+
+export const getStaticProps: GetStaticProps = async (context) => {
+
+  const ssg = generateSSGHelper();
+
+  const slug = context.params?.slug;
+
+  if (typeof slug !== "string") throw new Error("no slug");
+
+  const username = slug.replace("@", "");
+
+  await ssg.profile.getUserByUsername.prefetch({ username });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      username,
+    },
+  };
+};
+
+export const getStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
+};
+
+export default ProfilePage;
