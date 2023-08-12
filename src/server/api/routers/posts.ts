@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type {User} from "@clerk/nextjs/api"
 import {
   createTRPCRouter,
   privateProcedure,
@@ -7,14 +6,7 @@ import {
 } from "npm/server/api/trpc";
 import { clerkClient } from "@clerk/nextjs";
 import { TRPCError } from "@trpc/server";
-
-const filterUserForClient = (user: User) => {
-  return {
-    id: user.id, 
-    username: user.username, 
-    profileImageUrl: user.profileImageUrl, 
-  }
-}
+import { filterUserForClient } from "npm/server/helpers/filterUserForClient";
 
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
