@@ -163,11 +163,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <PageLayout>
-        {!isSignedIn && 
-        <div className="flex justify-center">
-          <SignInButton />
-        </div>}
-        {isSignedIn && <CreatePostWizard />}
+        <div className="border-b border-slate-400 p-4">
+          {!isSignedIn && 
+          <div className="flex justify-center">
+            <SignInButton />
+          </div>}
+          {isSignedIn && <CreatePostWizard />}
+        </div>
         <Feed />
       </PageLayout>
     </>
