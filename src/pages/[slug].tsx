@@ -2,6 +2,8 @@ import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { api } from "npm/utils/api";
 import { generateSSGHelper } from "npm/server/helpers/ssgHelper";
+import { PageLayout } from "npm/components/layout";
+import Image from "next/image";
 
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
@@ -19,9 +21,19 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <title>{data.username}</title>
       </Head>
 
-      <main className="flex h-screen justify-center">
+      <PageLayout>
+        <div className="h-48 bg-slate-600 relative">
+          <Image 
+            src={data.profileImageUrl} 
+            alt={`${data.username ?? ""}'s profile pic`} 
+            width={128}
+            height={128}
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4 border-black"
+          />
+        </div>
+        
         <div>Here is some example text for profile view: {data.username}</div>
-      </main>
+      </PageLayout>
     </>
   );
 }
