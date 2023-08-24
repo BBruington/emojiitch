@@ -7,9 +7,36 @@ import {
 import { clerkClient } from "@clerk/nextjs";
 import { TRPCError } from "@trpc/server";
 import { filterUserForClient } from "npm/server/helpers/filterUserForClient";
-
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { Post } from "@prisma/client";
+
+const addUsersDataToPosts = async (posts: Post[]) => {
+  const userId = posts.map((post) => post.authorId);
+  const users = (
+    await clerkClient.users.getUserList({
+    userId: userId,
+    limit:110,
+  })).map(filterUserForClient)
+
+  return posts.map(post => {
+
+    const author = users.find((user) => user.id === post.authorId);
+
+    if(!author?.username || !author) throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Author for post not found",
+    })
+
+    return {
+      post,
+      author: {
+        ...author,
+        username: author.username ?? "(username not found)",
+      },
+    };
+  });
+}
  
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -26,29 +53,7 @@ export const postsRouter = createTRPCRouter({
       orderBy: [{ createdAt: "desc" }],
     });
 
-    const users = (
-      await clerkClient.users.getUserList({
-      userId: posts.map((post) => post.authorId),
-      limit:100,
-    })).map(filterUserForClient)
-
-    return posts.map(post => {
-
-      const author = users.find((user) => user.id === post.authorId);
-
-      if(!author?.username || !author) throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Author for post not found",
-      })
-
-      return {
-        post,
-        author: {
-          ...author,
-          username: author.username,
-        },
-      };
-    });
+    return addUsersDataToPosts(posts);
   }),
 
   getPostsByUserId: publicProcedure.input(z.object({
