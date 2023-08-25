@@ -9,7 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { filterUserForClient } from "npm/server/helpers/filterUserForClient";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
-import { Post } from "@prisma/client";
+import type { Post } from "@prisma/client";
 
 const addUsersDataToPosts = async (posts: Post[]) => {
   const userId = posts.map((post) => post.authorId);
@@ -64,7 +64,7 @@ export const postsRouter = createTRPCRouter({
       },
       take: 100,
       orderBy: [{ createdAt: "desc"}],
-    })
+    }).then(addUsersDataToPosts)
   ),
 
   create: privateProcedure

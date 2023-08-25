@@ -15,7 +15,7 @@ const ProfileFeed = (props: {userId: string}) => {
   if (!data || data.length === 0) return <div>User has not posted</div>;
 
   return <div className="flex flex-col">
-    {data.map(post => (<PostView post={post} key={post.id} />))}
+    {data.map(fullPost => (<PostView {...fullPost} key={fullPost.post.id} />))}
   </div>
 }
 
@@ -48,6 +48,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <div className="h-[64px"></div>
         <div className="p-4 text-2xl font-bold">{`@${data.username ?? ""}`}</div>
         <div className="w-full border-b border-slate-400" />
+        <ProfileFeed userId={data.id} />
       </PageLayout>
     </>
   );
